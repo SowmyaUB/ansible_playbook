@@ -1,0 +1,31 @@
+pipeline {
+   agent {
+       label 'ansibleNode'
+   }
+   stages {
+      stage('Checkout') {
+         steps {
+           cleanWs()
+           git credentialsId: 'gitCred', url: 'https://github.com/SowmyaUB/ansible_playbook.git'
+         }
+    
+      }
+      stage('DownloadArti'){
+          steps{
+              script{
+                  withCredentials([usernamePassword(credentialsId: 'NexusCred', passwordVariable: 'PASS', usernameVariable: 'USER')]) {
+      sh 'curl -u $USER:$PASS http://18.236.165.72:8081/nexus/content/repositories/releases/be/cegeka/gameoflife/0.0.1/gameoflife-0.0.1.war -o $WORKSPACE/gameoflife-0.0.1.war'
+}
+              }
+          }
+      }
+      stage('Deploy'){
+          steps{
+              script{
+                  sh 'ansible-playbook -i $WORKSPACE/host $WORKSPACE/deploy.yml --extra-vars "work=$WORKSPACE hostname=host1"'
+              }
+          }
+      }
+     
+   }
+}
