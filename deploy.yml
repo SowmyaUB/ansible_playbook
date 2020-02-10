@@ -1,5 +1,5 @@
 ---
-- hosts: soni
+- hosts: {{hostname}}
   gather_facts: no
   tasks:
     - name: Checking the directory
